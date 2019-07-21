@@ -13,10 +13,47 @@ import numpy as np
 import math
 import random as rd
 import time
+import os
+import copy
 
 from IPython.display import clear_output
 
-from qol import notify,nl,dc
+try:
+    from win10toast import ToastNotifier
+except ModuleNotFoundError:
+    pass
+
+def dc(x):
+    return copy.deepcopy(x)
+
+def nl(n=1):
+    for i in range(n):
+        print('')
+
+def notify(title, text, **kwargs):    
+    
+    sound=kwargs.get('sound', None)
+    subtitle=kwargs.get('subtitle', None)
+    duration=kwargs.get('duration', 5)
+    
+    if os.name == 'posix':
+        if subtitle != None:
+            os.system("""
+                      osascript -e 'display notification "{}" with title "{}" subtitle "{}" sound name "{}"'
+                      """.format(text, title, subtitle, sound))
+        else:
+           os.system("""
+                      osascript -e 'display notification "{}" with title "{}" sound name "{}"'
+                      """.format(text, title, subtitle, sound))
+            
+    if os.name == 'nt':
+        toaster = ToastNotifier()
+        if subtitle != None:    
+            toaster.show_toast(title,"{} - {}".format(subtitle,text),duration=duration)
+        else:
+            toaster.show_toast(title,"{}".format(text),duration=duration)
+        while toaster.notification_active(): 
+            time.sleep(0)
 
 #grid = np.arange(81).reshape(9,9)
 
